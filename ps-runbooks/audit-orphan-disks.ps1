@@ -2,6 +2,7 @@
 Disable-AzureRmContextAutosave –Scope Process
 
 $connection = Get-AutomationConnection -Name AzureRunAsConnection
+$functionURL = Get-AutomationConnection -Name OrphanFunctionURL
 
 # Wrap authentication in retry logic for transient network failures
 $logonAttempt = 0
@@ -21,6 +22,19 @@ while(!($connectionResult) -And ($logonAttempt -le 10))
 $disks = Get-AzureRmDisk
 ForEach ($disk in $disks) {
     if ($null -eq $disk.ManagedBy) {
+        $type = "Microsoft.Compute/disks"
+        $jsonOrphan = @{ 
+            type = $type 
+            id = $disk.Id 
+        } | ConvertTo-Json
+
+        $params = @{
+            Uri         = $functionURL
+            Method      = 'POST'
+            Body        = $jsonOrphan
+            ContentType = 'application/json'
+        }
+        Invoke-RestMethod @params
         Write-Output("Orphan Disk Found: " + $disk.Id)
     }
 }

@@ -2,6 +2,7 @@
 Disable-AzureRmContextAutosave –Scope Process
 
 $connection = Get-AutomationConnection -Name AzureRunAsConnection
+$functionURL = Get-AzureAutomationVariable -Name OrphanFunctionURL
 
 # Wrap authentication in retry logic for transient network failures
 $logonAttempt = 0
@@ -21,7 +22,20 @@ while(!($connectionResult) -And ($logonAttempt -le 10))
 $ips = Get-AzureRmPublicIpAddress
 ForEach ($ip in $ips) {
     if ($ip.IpConfigurationText -eq "null") {
-        # Need to figure out how to send information for an orphan, email etc.
+        # Send data to an Azure Function to store in a Azure Queue
+        $type = "Microsoft.Network/publicIPAddresses"
+        $jsonOrphan = @{ 
+            type = $type 
+            id = $ip.Id 
+        } | ConvertTo-Json
+
+        $params = @{
+            Uri         = $functionURL
+            Method      = 'POST'
+            Body        = $jsonOrphan
+            ContentType = 'application/json'
+        }
+        Invoke-RestMethod @params
         Write-Output("Orphan IP Found: " + $ip.Id)
     }
 }
