@@ -10,6 +10,7 @@ The resoruces required are the following:
 1. Azure Automation Runbooks
 2. Azure Function App (Consumption)
 3. Azure Storage Queue
+4. Azure Logic App
 
 ## Installation
 

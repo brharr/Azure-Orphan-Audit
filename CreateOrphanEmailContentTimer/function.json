@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "myTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 0 3 */7 * *"
+    },
+    {
+      "type": "queue",
+      "name": "outputQueueItem",
+      "queueName": "orphanreport",
+      "connection": "azureorphanaudits_STORAGE",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}
