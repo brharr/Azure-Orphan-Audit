@@ -1,10 +1,10 @@
 const { QueueServiceClient, StorageSharedKeyCredential } = require("@azure/storage-queue");
 
 module.exports = async function (context, myTimer) {
-    const account = "azureorphanaudits";
-    const accountKey = process.env.ACCOUNT_KEY || "H1hFVL4ZipGE7gspGhnrFETglQNhEiq6lvahKrD2Ytez4VJOWbHzhldw/U4TyhiuxkNDFuL+enfZZCLnU+Tl1Q==";
-    const queueName = process.env.QUEUE_NAME || "orphans";
-    const reportName = process.env.REPORT_NAME || "auditreports"
+    const account = process.env.ACCOUNT_NAME;
+    const accountKey = process.env.ACCOUNT_KEY;
+    const queueName = process.env.QUEUE_NAME;
+    const reportName = process.env.REPORT_NAME;
     
     // Use StorageSharedKeyCredential with storage account and account key
     // StorageSharedKeyCredential is only avaiable in Node.js runtime, not in browsers

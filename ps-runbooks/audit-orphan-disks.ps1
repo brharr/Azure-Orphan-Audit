@@ -2,7 +2,7 @@
 Disable-AzureRmContextAutosave –Scope Process
 
 $connection = Get-AutomationConnection -Name AzureRunAsConnection
-$functionURL = Get-AutomationConnection -Name OrphanFunctionURL
+$functionURL = Get-AzureAutomationVariable -Name OrphanFunctionURL
 
 # Wrap authentication in retry logic for transient network failures
 $logonAttempt = 0

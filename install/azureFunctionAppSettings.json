@@ -1,0 +1,27 @@
+[
+  {
+    "name": "ACCOUNT_KEY",
+    "value": "K3w/guWY0WPLai1lcENmHraHc2XOreVjRWMZeOcs5VyjAEwAuj1utOBZ3wd7GW3TycZUyQH+L974gTP9GE6xeQ==",
+    "slotSetting": false
+  },
+  {
+    "name": "ACCOUNT_NAME",
+    "value": "azureorphanfuncstor",
+    "slotSetting": false
+  },
+  {
+    "name": "azureorphanfuncstor_STORAGE",
+    "value": "DefaultEndpointsProtocol=https;AccountName=azureorphanfuncstor;AccountKey=K3w/guWY0WPLai1lcENmHraHc2XOreVjRWMZeOcs5VyjAEwAuj1utOBZ3wd7GW3TycZUyQH+L974gTP9GE6xeQ==",
+    "slotSetting": false
+  },
+  {
+    "name": "QUEUE_NAME",
+    "value": "orphans",
+    "slotSetting": false
+  },
+  {
+    "name": "REPORT_NAME",
+    "value": "auditreports",
+    "slotSetting": false
+  },
+]
