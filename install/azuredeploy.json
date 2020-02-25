@@ -2,67 +2,52 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccount_name": {
-            "defaultValue": "azureorphanfuncstor",
+        "location": {
             "type": "String"
         },
-        "functionApp_name": {
+        "functionAppServicePlan": {
             "type": "String"
         },
-        "appServicePlan_name": {
-            "type": "String"
-        },
-        "automationAccount_name": {
+        "functionAppName": {
             "type": "String"
         }
     },
     "variables": {},
     "resources": [
         {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-04-01",
-            "name": "[parameters('storageAccount_name')]",
-            "location": "[resourceGroup().location]",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('functionAppServicePlan')]",
+            "location": "[parameters('location')]",
             "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
             },
-            "kind": "StorageV2",
+            "kind": "functionapp",
             "properties": {
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "blob": {
-                            "enabled": true
-                        },
-                        "queue": {
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                },
-                "accessTier": "Hot"
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
             }
         },
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('functionApp_name')]",
-            "location": "[resourceGroup().location]",
+            "name": "[parameters('functionAppName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppServicePlan'))]"
+            ],
             "properties": {
-                "hostNameSslStates": [
-                    {
-                        "name": "azureorphanfunctions.azurewebsites.net",
-                        "sslState": "Disabled",
-                        "hostType": "Standard"
-                    },
-                    {
-                        "name": "azureorphanfunctions.scm.azurewebsites.net",
-                        "sslState": "Disabled",
-                        "hostType": "Repository"
-                    }
-                ],
-                "serverFarmId": "[parameters('appServicePlan_name')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppServicePlan'))]",
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
@@ -74,226 +59,6 @@
                 "dailyMemoryTimeQuota": 0,
                 "httpsOnly": false,
                 "redundancyMode": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('functionApp_name'), '/web')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('functionApp_name'))]"
-            ],
-            "properties": {
-                "numberOfWorkers": 1,
-                "defaultDocuments": [
-                    "Default.htm",
-                    "Default.html",
-                    "Default.asp",
-                    "index.htm",
-                    "index.html",
-                    "iisstart.htm",
-                    "default.aspx",
-                    "index.php"
-                ],
-                "netFrameworkVersion": "v4.0",
-                "phpVersion": "5.6",
-                "requestTracingEnabled": false,
-                "remoteDebuggingEnabled": false,
-                "remoteDebuggingVersion": "VS2019",
-                "httpLoggingEnabled": false,
-                "logsDirectorySizeLimit": 35,
-                "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$AzureOrphanFunctions",
-                "scmType": "None",
-                "use32BitWorkerProcess": true,
-                "webSocketsEnabled": false,
-                "alwaysOn": false,
-                "managedPipelineMode": "Integrated",
-                "virtualApplications": [
-                    {
-                        "virtualPath": "/",
-                        "physicalPath": "site\\wwwroot",
-                        "preloadEnabled": false
-                    }
-                ],
-                "loadBalancing": "LeastRequests",
-                "experiments": {
-                    "rampUpRules": []
-                },
-                "autoHealEnabled": false,
-                "cors": {
-                    "allowedOrigins": [
-                        "https://functions.azure.com",
-                        "https://functions-staging.azure.com",
-                        "https://functions-next.azure.com"
-                    ],
-                    "supportCredentials": false
-                },
-                "localMySqlEnabled": false,
-                "ipSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictionsUseMain": false,
-                "http20Enabled": false,
-                "minTlsVersion": "1.2",
-                "ftpsState": "AllAllowed",
-                "reservedInstanceCount": 0
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/functions",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('functionApp_name'), '/AzureOrphanHttpTrigger')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('functionApp_name'))]"
-            ],
-            "properties": {
-                "script_root_path_href": "https://azureorphanfunctions.azurewebsites.net/admin/vfs/site/wwwroot/AzureOrphanHttpTrigger/",
-                "script_href": "https://azureorphanfunctions.azurewebsites.net/admin/vfs/site/wwwroot/AzureOrphanHttpTrigger/index.js",
-                "config_href": "https://azureorphanfunctions.azurewebsites.net/admin/vfs/site/wwwroot/AzureOrphanHttpTrigger/function.json",
-                "href": "https://azureorphanfunctions.azurewebsites.net/admin/functions/AzureOrphanHttpTrigger",
-                "config": {},
-                "test_data": "{\r\n    \"name\": \"Azure\"\r\n}"
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/functions",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('functionApp_name'), '/CreateOrphanEmailContentTimer')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('functionApp_name'))]"
-            ],
-            "properties": {
-                "script_root_path_href": "https://azureorphanfunctions.azurewebsites.net/admin/vfs/site/wwwroot/CreateOrphanEmailContentTimer/",
-                "script_href": "https://azureorphanfunctions.azurewebsites.net/admin/vfs/site/wwwroot/CreateOrphanEmailContentTimer/index.js",
-                "config_href": "https://azureorphanfunctions.azurewebsites.net/admin/vfs/site/wwwroot/CreateOrphanEmailContentTimer/function.json",
-                "href": "https://azureorphanfunctions.azurewebsites.net/admin/functions/CreateOrphanEmailContentTimer",
-                "config": {}
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2015-10-31",
-            "name": "[parameters('automationAccount_name')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "sku": {
-                    "name": "Basic"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/certificates",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(parameters('automationAccount_name'), '/AzureRunAsCertificate')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccount_name'))]"
-            ],
-            "properties": {
-                "description": "This certificate is used to authenticate with the service principal that was automatically created for this account. For details on this service principal and certificate, or to recreate them, go to this account’s Settings. For example usage, see the tutorial runbook in this account.",
-                "isExportable": true,
-                "thumbprint": "25366500D37086A324058DD77D6F380BC2635BC3",
-                "base64Value": "[parameters('certificates_AzureRunAsCertificate_base64Value')]"
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/connections",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(parameters('automationAccount_name'), '/AzureRunAsConnection')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccount_name'))]"
-            ],
-            "properties": {
-                "connectionType": {
-                    "name": "AzureServicePrincipal"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/connectionTypes",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(parameters('automationAccount_name'), '/Azure')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccount_name'))]"
-            ],
-            "properties": {
-                "isGlobal": true,
-                "fieldDefinitions": {
-                    "AutomationCertificateName": {
-                        "isEncrypted": false,
-                        "isOptional": false,
-                        "type": "System.String"
-                    },
-                    "SubscriptionID": {
-                        "isEncrypted": false,
-                        "isOptional": false,
-                        "type": "System.String"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/connectionTypes",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(parameters('automationAccount_name'), '/AzureServicePrincipal')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccount_name'))]"
-            ],
-            "properties": {
-                "isGlobal": true,
-                "fieldDefinitions": {
-                    "ApplicationId": {
-                        "isEncrypted": false,
-                        "isOptional": false,
-                        "type": "System.String"
-                    },
-                    "TenantId": {
-                        "isEncrypted": false,
-                        "isOptional": false,
-                        "type": "System.String"
-                    },
-                    "CertificateThumbprint": {
-                        "isEncrypted": false,
-                        "isOptional": false,
-                        "type": "System.String"
-                    },
-                    "SubscriptionId": {
-                        "isEncrypted": false,
-                        "isOptional": false,
-                        "type": "System.String"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/variables",
-            "apiVersion": "2015-10-31",
-            "name": "[concat(parameters('automationAccount_name'), '/OrphanFunctionURL')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccount_name'))]"
-            ],
-            "properties": {
-                "isEncrypted": false,
-                "value": "[concat('https://', parameters('functionApp_name'), '.azurewebsites.net/api/AzureOrphanHttpTrigger')]",
-                "description": "URL of the Azure Function that will populate the Storage Queue with Orphan JSON Data"
             }
         }
     ]
