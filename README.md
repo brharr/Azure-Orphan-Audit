@@ -31,7 +31,7 @@ Following are the steps necessary to setup the solution within your subscription
 
 7. Update all existing modules within the Automation Account [Docs](https://docs.microsoft.com/en-us/azure/automation/automation-update-azure-modules)
 
-8. Using the Browse Gallery function, add the AzureRm.Module to the Shared Modules section [Docs](https://docs.microsoft.com/en-us/azure/automation/shared-resources/modules)
+8. Using the Browse Gallery function, add the AzureRm.Network module to the Shared Modules section [Docs](https://docs.microsoft.com/en-us/azure/automation/shared-resources/modules)
 
 9. Import each of the Runbooks found within the ps-runbooks folder into the Automation Account and Publish them for use [Docs](https://docs.microsoft.com/en-us/azure/automation/manage-runbooks#import-a-runbook)
 
