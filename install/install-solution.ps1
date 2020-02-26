@@ -1,12 +1,12 @@
 # Please keep in mind that this script was put together with the intent that it would be run
 # inside of Azure Cloud Shell, therefore all Authentication has been kept out of the script.
 
-$location = "<Region Specification>"
-$resourceGroup = "<Name of Resource Group>"
+$location = "eastus2"
+$resourceGroup = "auto-orphan"
 $autoAccountName = "<Name of Automation Account>"
 $storageName = "azureorphanfuncstor"
-$functionAppName = "<Name of Function App>"
-$functionAppPlanName = "<Name for the App Service Plan associated with FunctionApp>"
+$functionAppName = "AzureOrphanFunctionApp"
+$functionAppPlanName = "AppPlan-OrphanFunctions"
 $functionOrphanURL = "https://" + $functionAppName + ".azurewebsites.net/api/AzureOrphanHttpTrigger"
 
 $azureDeployHash = @{ location = $location; functionAppServicePlan = $functionAppPlanName; functionAppName = $functionAppName }
@@ -17,10 +17,12 @@ New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroup `
 # Someone will need to create a new Azure Application object in AAD and make sure that it is certificate based
 # Once this Application is created, make sure to get the below information and paste them into their correct
 # variables. Please keep in mind that the Application will need at least Reader role within the Subscription
-$spnAppId = ""
-$spnCertThumb = ""
-$tenantId = ""
-$subId = ""
+# For more information on how to do this via PowerShell, please see the following: 
+# https://docs.microsoft.com/en-us/azure/automation/manage-runas-account#create-run-as-account-using-powershell
+$spnAppId = "9a42f561-89cb-4621-9e2e-88b15c2de6ab"
+$spnCertThumb = "VhREX]7h213_t-/vsW99d-_6Hs1:ShJQ"
+$tenantId = "feb0106c-50ef-4b39-8714-da9589109fcf"
+$subId = "3a1ad284-92e6-4b05-b32c-e96edf011ed4"
 
 # Create all of the required Automation Objects and Shared Resources
 New-AzureRmAutomationAccount -ResourceGroupName $resourceGroup -Name $autoAccountName -Location $location
