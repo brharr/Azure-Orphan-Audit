@@ -6,7 +6,6 @@ $resourceGroup = "auto-orphan"
 $autoAccountName = "auto-account-orphans"
 $storageName = "azureorphanfuncstor"
 $functionAppName = "AzureOrphanFunctionApp"
-$functionAppPlanName = "AppPlan-OrphanFunctions"
 $functionOrphanURL = "https://" + $functionAppName + ".azurewebsites.net/api/AzureOrphanHttpTrigger"
 
 New-AzResourceGroup -Name $resourceGroup -Location $location
@@ -34,7 +33,7 @@ New-AzAutomationVariable -ResourceGroupName $resourceGroup -AutomationAccountNam
 $fieldValues = @{ ApplicationId = $spnAppId; TenantId = $tenantId; SubscriptionId = $subsId; CertificateThumbprint = $spnCertThumb }
 New-AzAutomationConnection -ResourceGroupName $resourceGroup -AutomationAccountName $autoAccountName -Name AzureRunAsConnection -ConnectionTypeName AzureServicePrincipal -ConnectionFieldValues $fieldValues
 # Import each of the PowerShell runbooks based on the current folder structure
-Import-AzAutomationRunbook -ResourceGroupName $resourceGroup -AutomationAccountName $autoAccountName -Path "./ps-runbooks/audit-orphan-disks.ps1" -Type PowerShell
+Import-AzAutomationRunbook -ResourceGroupName $resourceGroup -AutomationAccountName $autoAccountName -Path "../ps-runbooks/audit-orphan-disks.ps1" -Type PowerShell
 Import-AzAutomationRunbook -ResourceGroupName $resourceGroup -AutomationAccountName $autoAccountName -Path "../ps-runbooks/audit-orphan-publicips.ps1" -Type PowerShell
 
 $storageAcct = New-AzStorageAccount -ResourceGroupName $resourceGroup -Location $location -Name $storageName -AccessTier Hot -Kind StorageV2 -SkuName Standard_LRS
