@@ -22,6 +22,12 @@
       "metadata": {
         "description": "The language worker runtime to load in the function app."
       }
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountKey": {
+      "type": "string"
     }
   },
   "variables": {
@@ -93,6 +99,14 @@
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "[variables('functionWorkerRuntime')]"
+            },
+            {
+              "name": "ACCOUNT_NAME",
+              "value": "[parameters('storageAccountName')]"
+            },
+            {
+              "name": "ACCOUNT_KEY",
+              "value": "[parameters('storageAccountKey')]"
             },
             {
               "name": "QUEUE_NAME",
